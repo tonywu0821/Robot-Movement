@@ -1,8 +1,8 @@
 # Robot-Movement
 
 This program simulates a robot moving on a tabletop with dimensions of 5 units x 5 units.
-The robot can roam roam around the tabletop and be prevented from falling to the ground.
-Any command that would cause the robot to fall to the ground will be ignored.
+The robot can roam around the tabletop and be prevented from falling to the ground.
+Any command that would cause the robot to fall to the ground will be prevented.
 
 
 ## Technologies
@@ -35,7 +35,7 @@ Commands can be like the following five:
 2. MOVE                    # Move foward a unit.
 3. LEFT                    # Turn left.
 4. RIGHT                   # Ture right.
-5. REPORT                  # Report the position and facing.
+5. REPORT                  # Report the position of the robot and its facing.
 ```
 
 Example:
@@ -54,17 +54,20 @@ Please enter your command: REPORT
     ├── README.md
     │
     ├── src            
-    │   └─── robot.py 
-    │               
+    │   └─── robot      
+    │         └── robot.py   # The main application
+    │
+    │
+    │            
     └── tests
-        ├── test_robot.py # Test program contains both unit tests and integration tests.
-        │                 # Some of them use a external file. 
+        ├── test_robot.py    # Test program contains both unit tests and integration tests.
+        │                    # Some of them use a external file. 
         │
         │
-        ├── test1         # External files for a integration test
-        ├── test1.ans     # Answers for a integration test
-        ├── test2         # External files for integration a test   
-        └── test2.ans     # Answers for a integration test
+        ├── test1            # External files for a integration test
+        ├── test1.ans        # Answers for a integration test
+        ├── test2            # External files for a integration test   
+        └── test2.ans        # Answers for a integration test
         
 ## Assumptions
 
