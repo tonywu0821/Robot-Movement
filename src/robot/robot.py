@@ -38,10 +38,6 @@ class Robot:
         # check if it's a place command.
         search_obj = re.search(r'PLACE\s+(\d+)\s*,\s*(\d+)\s*,\s*([A-Z]+)', command)
         if search_obj:
-            print(search_obj.group(0))
-            print(search_obj.group(1))
-            print(search_obj.group(2))
-            print(search_obj.group(3))
             return True
         return False
 
@@ -54,10 +50,13 @@ class Robot:
                 y = int(search_obj.group(2))
                 facing = search_obj.group(3)
                 self.methods['PLACE'](x, y, facing)
+
             else:
                 self.methods[command]()
+            return True
         else:
             print('PLease enter a valid command.')
+            return False
 
     def place(self, x, y, facing):
         if self.is_valid_position(x, y) and self.is_valid_direction(facing):
@@ -65,24 +64,33 @@ class Robot:
             self.position_y = y
             self.facing = DIRECTIONS.index(facing)
             self.is_placed = True
+            return True
+        return False
 
     def report(self):
         if self.is_placed:
-            print(f'Output: {self.position_x},{self.position_y},{DIRECTIONS[self.facing]}')
+            message = f'Output: {self.position_x},{self.position_y},{DIRECTIONS[self.facing]}'
+            print(message)
+            return message
         else:
             print("Can't report status of the robot. Because The Robot is not placed yet.")
+            return None
 
     def turn_left(self):
         if self.is_placed:
             self.facing = (self.facing - 1) % 4
+            return self.facing
         else:
             print("Can't turn left because the Robot is not placed yet.")
+            return None
 
     def turn_right(self):
         if self.is_placed:
             self.facing = (self.facing + 1) % 4
+            return self.facing
         else:
             print("Can't turn right because Robot is not placed yet.")
+            return None
 
     def move(self):
         if self.is_placed:
@@ -91,8 +99,10 @@ class Robot:
             if self.is_valid_position(new_position_x, new_position_y):
                 self.position_x = new_position_x
                 self.position_y = new_position_y
+            return self.position_x, self.position_y
         else:
             print("Can't not move because the Robot is not placed yet.")
+            return None
 
 
 def main():
