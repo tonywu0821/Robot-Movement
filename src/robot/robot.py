@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 import re
 
+# Constants
 DIRECTIONS = ('EAST', 'SOUTH', 'WEST', 'NORTH')
 MOVES = ((1, 0), (0, -1), (-1, 0), (0, 1))
 COMMANDS = {'MOVE', 'LEFT', 'RIGHT', 'REPORT'}
@@ -8,11 +9,12 @@ BOUNDARY = 5
 
 
 class Robot:
-    def __init__(self):
+    def __init__(self, verbose=False):
         self.position_x = None
         self.position_y = None
         self.facing = None
         self.is_placed = False
+        self.verbose = verbose
         self.methods = {'PLACE': self.place, 'MOVE': self.move, 'LEFT': self.turn_left,
                         'RIGHT': self.turn_right, 'REPORT': self.report}
 
@@ -21,14 +23,12 @@ class Robot:
         if type(x) == int and type(y) == int:
             if 0 <= x < BOUNDARY and 0 <= y < BOUNDARY:
                 return True
-        print("Pleas enter valid position.")
         return False
 
     @staticmethod
     def is_valid_direction(facing):
         if facing in DIRECTIONS:
             return True
-        print("Pleas enter valid facing.")
         return False
 
     @staticmethod
@@ -49,13 +49,13 @@ class Robot:
                 x = int(search_obj.group(1))
                 y = int(search_obj.group(2))
                 facing = search_obj.group(3)
-                self.methods['PLACE'](x, y, facing)
+                return self.methods['PLACE'](x, y, facing)
 
             else:
-                self.methods[command]()
-            return True
+                return self.methods[command]()
         else:
-            print('PLease enter a valid command.')
+            if self.verbose:
+                print('Please enter a valid command.')
             return False
 
     def place(self, x, y, facing):
@@ -64,32 +64,38 @@ class Robot:
             self.position_y = y
             self.facing = DIRECTIONS.index(facing)
             self.is_placed = True
-            return True
-        return False
+            return self.position_x, self.position_y, facing
+        if self.verbose:
+            print("You entered a wrong position or a direction.")
+        return None
 
     def report(self):
         if self.is_placed:
-            message = f'Output: {self.position_x},{self.position_y},{DIRECTIONS[self.facing]}'
-            print(message)
+            message = f'{self.position_x},{self.position_y},{DIRECTIONS[self.facing]}'
+            if self.verbose:
+                print(message)
             return message
         else:
-            print("Can't report status of the robot. Because The Robot is not placed yet.")
-            return None
+            if self.verbose:
+                print("Can't report the status of the robot because the Robot is not placed yet.")
+            return ""
 
     def turn_left(self):
         if self.is_placed:
             self.facing = (self.facing - 1) % 4
-            return self.facing
+            return DIRECTIONS[self.facing]
         else:
-            print("Can't turn left because the Robot is not placed yet.")
+            if self.verbose:
+                print("Can't turn left because the Robot is not placed yet.")
             return None
 
     def turn_right(self):
         if self.is_placed:
             self.facing = (self.facing + 1) % 4
-            return self.facing
+            return DIRECTIONS[self.facing]
         else:
-            print("Can't turn right because Robot is not placed yet.")
+            if self.verbose:
+                print("Can't turn right because Robot is not placed yet.")
             return None
 
     def move(self):
@@ -101,13 +107,14 @@ class Robot:
                 self.position_y = new_position_y
             return self.position_x, self.position_y
         else:
-            print("Can't not move because the Robot is not placed yet.")
+            if self.verbose:
+                print("Can't not move the robot because the Robot is not placed yet.")
             return None
 
 
 def main():
     parser = ArgumentParser()
-    robot = Robot()
+    robot = Robot(verbose=True)
     parser.add_argument('-f', '--file', type=str, help='-f [filename]')
     args = parser.parse_args()
 
@@ -116,11 +123,16 @@ def main():
             command = input("Please enter your command: ")
             robot.execute(command)
     else:
-        commands = open(args.file).read().splitlines()
-        for command in commands:
-            if (len(command) > 0):
-                robot.execute(command)
+        with open(args.file, 'r') as f:
+            commands = f.read().splitlines()
+            # change verbose to False when use a file as input.
+            robot.verbose = False
+            for command in commands:
+                if len(command) > 0:
+                    res = robot.execute(command)
+                    if command == "REPORT":
+                        print(res)
 
 
-if __name__== "__main__":
+if __name__ == "__main__":
     main()

@@ -1,5 +1,7 @@
 from robot.robot import Robot, DIRECTIONS
 
+# The start of the unit tests
+
 
 def test_is_valid_position():
     assert Robot.is_valid_position(0, 0)
@@ -41,27 +43,27 @@ def test_is_valid_command():
 
 
 def test_turn_right():
-    robot = Robot()
+    robot = Robot(verbose=False)
     assert not robot.turn_right()
 
     robot.place(0, 0, 'EAST')
-    assert DIRECTIONS[robot.turn_right()] == "SOUTH"
-    assert DIRECTIONS[robot.turn_right()] == "WEST"
-    assert DIRECTIONS[robot.turn_right()] == "NORTH"
+    assert robot.turn_right() == "SOUTH"
+    assert robot.turn_right() == "WEST"
+    assert robot.turn_right() == "NORTH"
 
 
 def test_turn_left():
-    robot = Robot()
+    robot = Robot(verbose=False)
     assert not robot.turn_left()
 
     robot.place(0, 0, 'EAST')
-    assert DIRECTIONS[robot.turn_left()] == "NORTH"
-    assert DIRECTIONS[robot.turn_left()] == "WEST"
-    assert DIRECTIONS[robot.turn_left()] == "SOUTH"
+    assert robot.turn_left() == "NORTH"
+    assert robot.turn_left() == "WEST"
+    assert robot.turn_left() == "SOUTH"
 
 
 def test_move():
-    robot = Robot()
+    robot = Robot(verbose=False)
     assert not robot.move()
 
     robot.place(0, 0, 'EAST')
@@ -73,7 +75,7 @@ def test_move():
 
 
 def test_place():
-    robot = Robot()
+    robot = Robot(verbose=False)
     assert robot.place(1, 1, 'EAST')
     assert robot.place(2, 2, 'WEST')
     assert robot.place(3, 3, 'NORTH')
@@ -82,7 +84,7 @@ def test_place():
 
 
 def test_execute():
-    robot = Robot()
+    robot = Robot(verbose=False)
     assert not robot.execute('WRONG COMMAND1!')
     assert robot.execute('PLACE 1,1,EAST')
     assert robot.position_x == 1 and robot.position_y == 1
@@ -98,6 +100,66 @@ def test_execute():
     assert not robot.execute('WRONG COMMAND3!!')
     assert robot.position_x == 4 and robot.position_y == 1
 
+# The end of the unit tests
 
-def test_from_files():
-    assert True
+
+# The start of the integration test
+
+
+def test_normal_report():
+    robot = Robot(verbose=False)
+    commands = ["PLACE 2,1,EAST", "MOVE", "REPORT", "MOVE", "LEFT", "REPORT",
+                "WRONG", "LEFT", "WRONG", "MOVE", "REPORT"]
+    answers = ["3,1,EAST", "4,1,NORTH", "3,1,WEST"]
+    i = 0
+    for command in commands:
+        res = robot.execute(command)
+        if command == "REPORT":
+            assert res == answers[i]
+            i += 1
+
+
+def test_invalid_report():
+    robot = Robot(verbose=False)
+    commands = ["PLACE 10,10,NORTH", "REPORT", "REPORT",
+                "PLACE 3,3,EAST", "MOVE", "MOVE", "LEFT",
+                "REPORT", "WRONG", "LEFT", "WRONG", "MOVE", "REPORT"]
+    answers = ["", "", "4,3,NORTH", "3,3,WEST"]
+    i = 0
+    for command in commands:
+        res = robot.execute(command)
+        if command == "REPORT":
+            assert res == answers[i]
+            i += 1
+
+
+def test__from_input_file_1():
+    robot = Robot(verbose=False)
+    with open('test1.ans') as f:
+        expected_output = f.read().splitlines()
+    i = 0
+    with open('test1', 'r') as f:
+        commands = f.read().splitlines()
+        for command in commands:
+            if len(command) > 0:
+                res = robot.execute(command)
+                if command == "REPORT":
+                    assert res == expected_output[i]
+                    i += 1
+
+
+def test__from_input_file_2():
+    robot = Robot(verbose=False)
+    with open('test2.ans') as f:
+        expected_output = f.read().splitlines()
+    i = 0
+    with open('test2', 'r') as f:
+        commands = f.read().splitlines()
+        for command in commands:
+            if len(command) > 0:
+                res = robot.execute(command)
+                if command == "REPORT":
+                    assert res == expected_output[i]
+                    i += 1
+
+# The end of the integration test
